@@ -9,9 +9,16 @@ def salvar_dado(dado):
         df = pd.read_csv(ARQUIVO, sep=";")
     else:
         df = pd.DataFrame(columns=[
-            "codigo", "material", "formulacao", "peso", "usuario"
-        ])
-
+    "codigo",
+    "material",
+    "formulacao",
+    "peso",
+    "turno",
+    "data",
+    "hora",
+    "usuario"
+])
+        
     # =========================
     # 🔥 PADRONIZAÇÃO DOS DADOS
     # =========================
@@ -44,12 +51,17 @@ def salvar_dado(dado):
     # ✅ SALVAR
     # =========================
     novo = pd.DataFrame([{
-        "codigo": codigo,
-        "material": material,
-        "formulacao": formulacao,
-        "peso": peso,
-        "usuario": dado["usuario"]
-    }])
+    "codigo": codigo,
+    "material": material,
+    "formulacao": formulacao,
+    "peso": peso,
+    "peso_l": dado["peso_l"],
+    "turno": dado["turno"],
+    "turma": dado["turma"],
+    "data": dado["data"],
+    "hora": dado["hora"],
+    "usuario": dado["usuario"]
+}])
 
     df = pd.concat([df, novo], ignore_index=True)
 

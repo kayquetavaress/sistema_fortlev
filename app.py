@@ -139,7 +139,7 @@ def tela_login():
     with col_centro:
 
        
-        st.markdown("<div class='titulo'>FORTLEV</div>", unsafe_allow_html=True)
+        st.markdown("<div class='titulo'>SISTEMA DE INVENTÁRIO</div>", unsafe_allow_html=True)
 
         usuario = st.text_input("Usuário")
         senha = st.text_input("Senha", type="password")
@@ -171,7 +171,7 @@ def tela_login():
 # =========================
 def menu():
 
-    st.sidebar.markdown("## 💼 Sistema Fortlev")
+    st.sidebar.markdown("## 💼 Sistema de Inventario")
 
     st.sidebar.markdown("""
 📦 Controle de Inventário  
@@ -204,41 +204,237 @@ def tela_upload():
 
     st.markdown("### 📸 Leitura de Etiqueta")
 
-    arquivo = st.file_uploader("Selecione ou tire uma foto", type=["jpg","png","jpeg"])
+    modo = st.radio(
+        "Modo de Entrada",
+        [
+            "📸 Anexar Imagem",
+            "⌨️ Digitação Manual"
+        ]
+    )
 
-    if arquivo:
+    # =====================================
+    # MODO OCR
+    # =====================================
 
-        if not os.path.exists("imagens"):
-            os.makedirs("imagens")
+    if modo == "📸 Anexar Imagem":
 
-        caminho = os.path.join("imagens", arquivo.name)
+        arquivo = st.file_uploader(
+            "Selecione ou tire uma foto",
+            type=["jpg", "png", "jpeg"]
+        )
 
-        with open(caminho, "wb") as f:
-            f.write(arquivo.getbuffer())
+        if arquivo:
 
-        st.image(caminho, width=300)
+            if not os.path.exists("imagens"):
+                os.makedirs("imagens")
 
-        texto = ler_imagem(caminho)
+            caminho = os.path.join(
+                "imagens",
+                arquivo.name
+            )
 
-        dados = extrair_dados(texto)
+            with open(caminho, "wb") as f:
+                f.write(arquivo.getbuffer())
 
-        st.subheader("📊 Dados extraídos")
-        st.write(dados)
+            st.image(caminho, width=300)
 
-        if dados and dados.get("codigo") and dados.get("peso"):
+            texto = ler_imagem(caminho)
 
-            dados["usuario"] = st.session_state.get("usuario")
+            dados = extrair_dados(texto)
 
-            salvou = salvar_dado(dados)
+            st.subheader("📊 Conferir Dados")
 
-            if salvou:
-                st.success("✅ Registro salvo")
-            else:
-                st.error("⚠️ Registro duplicado!")
+            codigo_editado = st.text_input(
+                "Código do Produto",
+                value=str(dados.get("codigo", ""))
+            )
+
+            material_editado = st.text_input(
+                "Material",
+                value=str(dados.get("material", ""))
+            )
+
+            formulacao_editada = st.text_input(
+                "Formulação",
+                value=str(dados.get("formulacao", ""))
+            )
+
+            peso_padrao = 0.0
+
+            try:
+                if dados.get("peso"):
+                    peso_padrao = float(
+                        dados.get("peso")
+                    )
+            except:
+                pass
+
+            peso_editado = st.number_input(
+                "Peso",
+                value=peso_padrao,
+                min_value=0.0,
+                step=0.01,
+                format="%.2f"
+            )
+
+            st.markdown("---")
+            st.subheader("📋 Informações Complementares")
+
+            turno = st.selectbox(
+                "Turno",
+                ["", "A", "B", "C", "D"]
+            )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                data = st.date_input(
+                    "Data"
+                )
+
+            with col2:
+
+                hora = st.time_input(
+                    "Hora"
+                )
+
+            st.markdown("---")
+
+            b1, b2 = st.columns(2)
+
+            with b1:
+
+                if st.button("💾 Salvar Registro"):
+
+                    dados_editados = {
+
+                        "codigo": codigo_editado,
+                        "material": material_editado,
+                        "formulacao": formulacao_editada,
+                        "peso": peso_editado,
+                        "turno": turno,
+                        "data": str(data),
+                        "hora": str(hora),
+                        "usuario": st.session_state.get(
+                            "usuario"
+                        )
+
+                    }
+
+                    salvou = salvar_dado(
+                        dados_editados
+                    )
+
+                    if salvou:
+
+                        st.success(
+                            "✅ Registro salvo com sucesso!"
+                        )
+
+                    else:
+
+                        st.error(
+                            "⚠️ Registro duplicado!"
+                        )
+
+            with b2:
+
+                if st.button("📸 Nova Etiqueta"):
+                    st.rerun()
 
         else:
-            st.error("Erro na leitura")
 
+            st.info(
+                "Selecione uma imagem para iniciar a leitura."
+            )
+
+    # =====================================
+    # MODO MANUAL
+    # =====================================
+
+    else:
+
+        st.subheader("⌨️ Digitação Manual")
+
+        codigo = st.text_input(
+            "Código do Produto"
+        )
+
+        material = st.text_input(
+            "Material"
+        )
+
+        formulacao = st.text_input(
+            "Formulação"
+        )
+
+        peso = st.number_input(
+            "Peso",
+            min_value=0.0,
+            step=0.01,
+            format="%.2f"
+        )
+
+        st.markdown("---")
+        st.subheader("📋 Informações Complementares")
+
+        turno = st.selectbox(
+            "Turno",
+            ["", "A", "B", "C", "D"],
+            key="turno_manual"
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            data = st.date_input(
+                "Data",
+                key="data_manual"
+            )
+
+        with col2:
+
+            hora = st.time_input(
+                "Hora",
+                key="hora_manual"
+            )
+
+        st.markdown("---")
+
+        if st.button("💾 Salvar Registro Manual"):
+
+            dados = {
+
+                "codigo": codigo,
+                "material": material,
+                "formulacao": formulacao,
+                "peso": peso,
+                "turno": turno,
+                "data": str(data),
+                "hora": str(hora),
+                "usuario": st.session_state.get(
+                    "usuario"
+                )
+
+            }
+
+            salvou = salvar_dado(
+                dados
+            )
+
+            if salvou:
+
+                st.success(
+                    "✅ Registro salvo com sucesso!"
+                )
+
+            else:
+
+                st.error(
+                    "⚠️ Registro duplicado!"
+                )
 # =========================
 # 📊 DASHBOARD
 # =========================
