@@ -1,1 +1,2 @@
-codigo;material;formulacao;peso;usuario;tipo
+codigo;material;formulacao;peso;turno;data;hora;usuario
+400000041;MATERIAL NÃO CADASTRADO;E02M410;1251.0;A;2026-07-15;11:42:00;kayque

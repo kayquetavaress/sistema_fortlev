@@ -3,33 +3,36 @@ import os
 
 ARQUIVO = "dados.csv"
 
+
 def salvar_dado(dado):
 
     if os.path.exists(ARQUIVO):
         df = pd.read_csv(ARQUIVO, sep=";")
     else:
         df = pd.DataFrame(columns=[
-    "codigo",
-    "material",
-    "formulacao",
-    "peso",
-    "turno",
-    "data",
-    "hora",
-    "usuario"
-])
-        
+            "codigo",
+            "material",
+            "formulacao",
+            "peso",
+            "turno",
+            "data",
+            "hora",
+            "usuario"
+        ])
+
     # =========================
-    # 🔥 PADRONIZAÇÃO DOS DADOS
+    # PADRONIZAÇÃO DOS DADOS
     # =========================
+
     codigo = str(dado["codigo"]).strip()
     material = str(dado["material"]).strip().upper()
     formulacao = str(dado["formulacao"]).strip().upper()
     peso = round(float(dado["peso"]), 2)
 
     # =========================
-    # 🚫 VERIFICAR DUPLICADO
+    # VERIFICAR DUPLICADO
     # =========================
+
     if not df.empty:
 
         df["codigo"] = df["codigo"].astype(str)
@@ -48,66 +51,63 @@ def salvar_dado(dado):
             return False
 
     # =========================
-    # ✅ SALVAR
+    # SALVAR
     # =========================
+
     novo = pd.DataFrame([{
-    "codigo": codigo,
-    "material": material,
-    "formulacao": formulacao,
-    "peso": peso,
-    "peso_l": dado["peso_l"],
-    "turno": dado["turno"],
-    "turma": dado["turma"],
-    "data": dado["data"],
-    "hora": dado["hora"],
-    "usuario": dado["usuario"]
-}])
+        "codigo": codigo,
+        "material": material,
+        "formulacao": formulacao,
+        "peso": peso,
+        "turno": dado["turno"],
+        "data": dado["data"],
+        "hora": dado["hora"],
+        "usuario": dado["usuario"]
+    }])
 
     df = pd.concat([df, novo], ignore_index=True)
 
-    df.to_csv(ARQUIVO, index=False, sep=";")
+    df.to_csv(
+        ARQUIVO,
+        index=False,
+        sep=";"
+    )
 
     return True
-
-    # =========================
-    # 🚫 BLOQUEIO DE DUPLICADO
-    # =========================
-
-    if not df.empty:
-        existe = (
-            (df["codigo"] == dado["codigo"]) &
-            (df["material"] == dado["material"]) &
-            (df["formulacao"] == dado["formulacao"]) &
-            (df["peso"] == dado["peso"])
-        )
-
-        if existe.any():
-            return False  # duplicado encontrado
-
-    # =========================
-    # ✅ SALVAR NORMAL
-    # =========================
-
-    novo = pd.DataFrame([dado])
-    df = pd.concat([df, novo], ignore_index=True)
-
-    df.to_csv(ARQUIVO, index=False, sep=";")
-
-    return True
-
 
 
 def carregar_dados():
+
     if os.path.exists(ARQUIVO):
         return pd.read_csv(ARQUIVO, sep=";")
-    else:
-        return pd.DataFrame(columns=[
-            "codigo", "material", "formulacao", "peso", "usuario", "tipo"
-        ])
+
+    return pd.DataFrame(columns=[
+        "codigo",
+        "material",
+        "formulacao",
+        "peso",
+        "turno",
+        "data",
+        "hora",
+        "usuario"
+    ])
 
 
 def limpar_banco():
+
     df = pd.DataFrame(columns=[
-        "codigo", "material", "formulacao", "peso", "usuario", "tipo"
+        "codigo",
+        "material",
+        "formulacao",
+        "peso",
+        "turno",
+        "data",
+        "hora",
+        "usuario"
     ])
-    df.to_csv(ARQUIVO, index=False, sep=";")
+
+    df.to_csv(
+        ARQUIVO,
+        index=False,
+        sep=";"
+    )
