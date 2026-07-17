@@ -349,7 +349,7 @@ def tela_upload():
                 "Selecione uma imagem para iniciar a leitura."
             )
 
-    # =====================================
+       # =====================================
     # MODO MANUAL
     # =====================================
 
@@ -361,8 +361,28 @@ def tela_upload():
             "Código do Produto"
         )
 
+        material_padrao = ""
+
+        try:
+
+            codigo_limpo = codigo.strip()
+
+            if codigo_limpo:
+
+                from parser import MATERIAIS
+
+                if codigo_limpo in MATERIAIS:
+
+                    material_padrao = MATERIAIS[
+                        codigo_limpo
+                    ]["descricao"]
+
+        except:
+            pass
+
         material = st.text_input(
-            "Material"
+            "Material",
+            value=material_padrao
         )
 
         formulacao = st.text_input(
