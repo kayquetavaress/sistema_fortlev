@@ -1,2 +1,2 @@
-codigo;material;formulacao;peso;turno;data;hora;usuario
-400000041;MATERIAL NÃO CADASTRADO;E02M410;1251.0;A;2026-07-15;11:42:00;kayque
+codigo;material;formulacao;peso;turno;data;hora;usuario;operador
+4000000417;COMPOSTO PÓ PVC MARROM TUBO SOLDÁVEL;E02M029;1300.5;B;2026-08-07;17:36:00;Ana carla;KAYQUE
