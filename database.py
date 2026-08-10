@@ -14,6 +14,7 @@ def salvar_dado(dado):
             "material",
             "formulacao",
             "peso",
+            "operador",
             "turno",
             "data",
             "hora",
@@ -41,10 +42,10 @@ def salvar_dado(dado):
         df["peso"] = df["peso"].astype(float).round(2)
 
         existe = (
-            (df["codigo"] == codigo) &
-            (df["material"] == material) &
-            (df["formulacao"] == formulacao) &
-            (df["peso"] == peso)
+            (df["codigo"] == codigo)
+            & (df["material"] == material)
+            & (df["formulacao"] == formulacao)
+            & (df["peso"] == peso)
         )
 
         if existe.any():
@@ -59,6 +60,7 @@ def salvar_dado(dado):
         "material": material,
         "formulacao": formulacao,
         "peso": peso,
+        "operador": dado["operador"],
         "turno": dado["turno"],
         "data": dado["data"],
         "hora": dado["hora"],
@@ -86,6 +88,7 @@ def carregar_dados():
         "material",
         "formulacao",
         "peso",
+        "operador",
         "turno",
         "data",
         "hora",
@@ -100,6 +103,7 @@ def limpar_banco():
         "material",
         "formulacao",
         "peso",
+        "operador",
         "turno",
         "data",
         "hora",

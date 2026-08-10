@@ -142,18 +142,34 @@ def tela_login():
         st.markdown("<div class='titulo'>SISTEMA DE INVENTÁRIO</div>", unsafe_allow_html=True)
 
         usuario = st.text_input("Usuário")
-        senha = st.text_input("Senha", type="password")
+
+        senha = st.text_input(
+            "Senha",
+            type="password"
+        )
+
+        USUARIOS = {
+
+            "Admin": "1234",
+            "Kayque": "8150",
+            "Ana carla": "1234",
+            "Marcio": "1234"
+
+        }
 
         if st.button("Entrar"):
-            if usuario == "admin" and senha == "1234":   
+
+            if (
+                usuario in USUARIOS
+                and USUARIOS[usuario] == senha
+            ):
+
                 st.session_state["logado"] = True
                 st.session_state["usuario"] = usuario
                 st.rerun()
-            elif usuario == "kayque" and senha == "8150":
-                st.session_state["logado"] = True
-                st.session_state["usuario"] = usuario
-                st.rerun()
+
             else:
+
                 st.error("Credenciais inválidas")
 
         st.markdown("""
@@ -280,6 +296,10 @@ def tela_upload():
             st.markdown("---")
             st.subheader("📋 Informações Complementares")
 
+            operador = st.text_input(
+                "Operador"
+            )
+
             turno = st.selectbox(
                 "Turno",
                 ["", "A", "B", "C", "D"]
@@ -290,20 +310,20 @@ def tela_upload():
             with col1:
 
                 data = st.date_input(
-                    "Data"
+                    "Data de Produção"
                 )
 
             with col2:
 
                 hora = st.time_input(
-                    "Hora"
+                    "Hora de Produção"
                 )
 
             st.markdown("---")
 
-            b1, b2 = st.columns(2)
+            col_salvar, col_novo = st.columns(2)
 
-            with b1:
+            with col_salvar:
 
                 if st.button("💾 Salvar Registro"):
 
@@ -313,13 +333,16 @@ def tela_upload():
                         "material": material_editado,
                         "formulacao": formulacao_editada,
                         "peso": peso_editado,
+
+                        "operador": operador,
                         "turno": turno,
+
                         "data": str(data),
                         "hora": str(hora),
+
                         "usuario": st.session_state.get(
                             "usuario"
                         )
-
                     }
 
                     salvou = salvar_dado(
@@ -338,9 +361,10 @@ def tela_upload():
                             "⚠️ Registro duplicado!"
                         )
 
-            with b2:
+            with col_novo:
 
                 if st.button("📸 Nova Etiqueta"):
+
                     st.rerun()
 
         else:
@@ -349,7 +373,7 @@ def tela_upload():
                 "Selecione uma imagem para iniciar a leitura."
             )
 
-       # =====================================
+    # =====================================
     # MODO MANUAL
     # =====================================
 
@@ -399,6 +423,11 @@ def tela_upload():
         st.markdown("---")
         st.subheader("📋 Informações Complementares")
 
+        operador = st.text_input(
+            "Operador",
+            key="operador_manual"
+        )
+
         turno = st.selectbox(
             "Turno",
             ["", "A", "B", "C", "D"],
@@ -410,20 +439,22 @@ def tela_upload():
         with col1:
 
             data = st.date_input(
-                "Data",
+                "Data de Produção",
                 key="data_manual"
             )
 
         with col2:
 
             hora = st.time_input(
-                "Hora",
+                "Hora de Produção",
                 key="hora_manual"
             )
 
         st.markdown("---")
 
-        if st.button("💾 Salvar Registro Manual"):
+        if st.button(
+            "💾 Salvar Registro Manual"
+        ):
 
             dados = {
 
@@ -431,9 +462,13 @@ def tela_upload():
                 "material": material,
                 "formulacao": formulacao,
                 "peso": peso,
+
+                "operador": operador,
                 "turno": turno,
+
                 "data": str(data),
                 "hora": str(hora),
+
                 "usuario": st.session_state.get(
                     "usuario"
                 )
