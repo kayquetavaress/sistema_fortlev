@@ -3,9 +3,14 @@ import os
 import pandas as pd
 import io
 
+
 from ocr import ler_imagem
 from parser import extrair_dados
 from database import salvar_dado, carregar_dados, limpar_banco, ARQUIVO
+from produtos import (
+    carregar_produtos,
+    salvar_produto
+)
 
 st.set_page_config(page_title="Sistema Fortlev", layout="wide")
 
@@ -139,37 +144,21 @@ def tela_login():
     with col_centro:
 
        
-        st.markdown("<div class='titulo'>SISTEMA DE INVENTÁRIO</div>", unsafe_allow_html=True)
+        st.markdown("<div class='titulo'>FORTLEV</div>", unsafe_allow_html=True)
 
         usuario = st.text_input("Usuário")
-
-        senha = st.text_input(
-            "Senha",
-            type="password"
-        )
-
-        USUARIOS = {
-
-            "Admin": "1234",
-            "Kayque": "8150",
-            "Ana carla": "1234",
-            "Marcio": "1234"
-
-        }
+        senha = st.text_input("Senha", type="password")
 
         if st.button("Entrar"):
-
-            if (
-                usuario in USUARIOS
-                and USUARIOS[usuario] == senha
-            ):
-
+            if usuario == "admin" and senha == "1234":   
                 st.session_state["logado"] = True
                 st.session_state["usuario"] = usuario
                 st.rerun()
-
+            elif usuario == "kayque" and senha == "8150":
+                st.session_state["logado"] = True
+                st.session_state["usuario"] = usuario
+                st.rerun()
             else:
-
                 st.error("Credenciais inválidas")
 
         st.markdown("""
@@ -187,7 +176,7 @@ def tela_login():
 # =========================
 def menu():
 
-    st.sidebar.markdown("## 💼 Sistema de Inventario")
+    st.sidebar.markdown("## 💼 Sistema Fortlev")
 
     st.sidebar.markdown("""
 📦 Controle de Inventário  
@@ -196,9 +185,14 @@ def menu():
 """)
 
     opcao = st.sidebar.radio(
-        "Selecione uma opção",
-        ["📸 Leitura de Etiqueta", "📊 Painel", "📋 Inventário"]
-    )
+    "Selecione uma opção",
+    [
+        "📸 Leitura de Etiqueta",
+        "📊 Painel",
+        "📋 Inventário",
+        "📦 Cadastro de Produtos"
+    ]
+)
 
     st.sidebar.markdown("---")
 
@@ -228,9 +222,9 @@ def tela_upload():
         ]
     )
 
-    # =====================================
-    # MODO OCR
-    # =====================================
+    # =========================
+    # OCR
+    # =========================
 
     if modo == "📸 Anexar Imagem":
 
@@ -250,136 +244,70 @@ def tela_upload():
             )
 
             with open(caminho, "wb") as f:
-                f.write(arquivo.getbuffer())
-
-            st.image(caminho, width=300)
-
-            texto = ler_imagem(caminho)
-
-            dados = extrair_dados(texto)
-
-            st.subheader("📊 Conferir Dados")
-
-            codigo_editado = st.text_input(
-                "Código do Produto",
-                value=str(dados.get("codigo", ""))
-            )
-
-            material_editado = st.text_input(
-                "Material",
-                value=str(dados.get("material", ""))
-            )
-
-            formulacao_editada = st.text_input(
-                "Formulação",
-                value=str(dados.get("formulacao", ""))
-            )
-
-            peso_padrao = 0.0
-
-            try:
-                if dados.get("peso"):
-                    peso_padrao = float(
-                        dados.get("peso")
-                    )
-            except:
-                pass
-
-            peso_editado = st.number_input(
-                "Peso",
-                value=peso_padrao,
-                min_value=0.0,
-                step=0.01,
-                format="%.2f"
-            )
-
-            st.markdown("---")
-            st.subheader("📋 Informações Complementares")
-
-            operador = st.text_input(
-                "Operador"
-            )
-
-            turno = st.selectbox(
-                "Turno",
-                ["", "A", "B", "C", "D"]
-            )
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-
-                data = st.date_input(
-                    "Data de Produção"
+                f.write(
+                    arquivo.getbuffer()
                 )
 
-            with col2:
-
-                hora = st.time_input(
-                    "Hora de Produção"
-                )
-
-            st.markdown("---")
-
-            col_salvar, col_novo = st.columns(2)
-
-            with col_salvar:
-
-                if st.button("💾 Salvar Registro"):
-
-                    dados_editados = {
-
-                        "codigo": codigo_editado,
-                        "material": material_editado,
-                        "formulacao": formulacao_editada,
-                        "peso": peso_editado,
-
-                        "operador": operador,
-                        "turno": turno,
-
-                        "data": str(data),
-                        "hora": str(hora),
-
-                        "usuario": st.session_state.get(
-                            "usuario"
-                        )
-                    }
-
-                    salvou = salvar_dado(
-                        dados_editados
-                    )
-
-                    if salvou:
-
-                        st.success(
-                            "✅ Registro salvo com sucesso!"
-                        )
-
-                    else:
-
-                        st.error(
-                            "⚠️ Registro duplicado!"
-                        )
-
-            with col_novo:
-
-                if st.button("📸 Nova Etiqueta"):
-
-                    st.rerun()
-
-        else:
-
-            st.info(
-                "Selecione uma imagem para iniciar a leitura."
+            st.image(
+                caminho,
+                width=300
             )
 
-    # =====================================
-    # MODO MANUAL
-    # =====================================
+            texto = ler_imagem(
+                caminho
+            )
+
+            dados = extrair_dados(
+                texto
+            )
+
+            st.subheader(
+                "📊 Dados Extraídos"
+            )
+
+            st.write(dados)
+
+            if (
+                dados
+                and dados.get("codigo")
+                and dados.get("peso")
+            ):
+
+                dados["usuario"] = st.session_state.get(
+                    "usuario"
+                )
+
+                salvou = salvar_dado(
+                    dados
+                )
+
+                if salvou:
+
+                    st.success(
+                        "✅ Registro salvo"
+                    )
+
+                else:
+
+                    st.error(
+                        "⚠️ Registro duplicado!"
+                    )
+
+            else:
+
+                st.error(
+                    "Erro na leitura"
+                )
+    
+# =========================
+# MANUAL
+# =========================
 
     else:
 
-        st.subheader("⌨️ Digitação Manual")
+        st.subheader(
+            "⌨️ Digitação Manual"
+        )
 
         codigo = st.text_input(
             "Código do Produto"
@@ -389,24 +317,26 @@ def tela_upload():
 
         try:
 
-            codigo_limpo = codigo.strip()
+            df_produtos = carregar_produtos()
 
-            if codigo_limpo:
+            produto = df_produtos[
+                df_produtos["codigo"].astype(str)
+                == codigo.strip()
+            ]
 
-                from parser import MATERIAIS
+            if not produto.empty:
 
-                if codigo_limpo in MATERIAIS:
-
-                    material_padrao = MATERIAIS[
-                        codigo_limpo
-                    ]["descricao"]
+                material_padrao = str(
+                    produto.iloc[0]["descricao"]
+                )
 
         except:
             pass
 
         material = st.text_input(
             "Material",
-            value=material_padrao
+            value=material_padrao,
+            disabled=True
         )
 
         formulacao = st.text_input(
@@ -416,22 +346,16 @@ def tela_upload():
         peso = st.number_input(
             "Peso",
             min_value=0.0,
-            step=0.01,
-            format="%.2f"
+            step=0.01
         )
 
-        st.markdown("---")
-        st.subheader("📋 Informações Complementares")
-
         operador = st.text_input(
-            "Operador",
-            key="operador_manual"
+            "Operador"
         )
 
         turno = st.selectbox(
             "Turno",
-            ["", "A", "B", "C", "D"],
-            key="turno_manual"
+            ["", "A", "B", "C", "D"]
         )
 
         col1, col2 = st.columns(2)
@@ -439,18 +363,14 @@ def tela_upload():
         with col1:
 
             data = st.date_input(
-                "Data de Produção",
-                key="data_manual"
+                "Data de Produção"
             )
 
         with col2:
 
             hora = st.time_input(
-                "Hora de Produção",
-                key="hora_manual"
+                "Hora de Produção"
             )
-
-        st.markdown("---")
 
         if st.button(
             "💾 Salvar Registro Manual"
@@ -462,13 +382,10 @@ def tela_upload():
                 "material": material,
                 "formulacao": formulacao,
                 "peso": peso,
-
                 "operador": operador,
                 "turno": turno,
-
                 "data": str(data),
                 "hora": str(hora),
-
                 "usuario": st.session_state.get(
                     "usuario"
                 )
@@ -482,7 +399,7 @@ def tela_upload():
             if salvou:
 
                 st.success(
-                    "✅ Registro salvo com sucesso!"
+                    "✅ Registro salvo"
                 )
 
             else:
@@ -490,44 +407,191 @@ def tela_upload():
                 st.error(
                     "⚠️ Registro duplicado!"
                 )
+   # =========================
+# 📦 PRODUTOS
 # =========================
-# 📊 DASHBOARD
-# =========================
-def tela_dashboard():
 
-    st.markdown("### 📊 Painel de Controle")
+def tela_produtos():
 
-    df = carregar_dados()
+    st.markdown(
+        "### 📦 Cadastro de Produtos"
+    )
+
+    codigo = st.text_input(
+        "Código"
+    )
+
+    descricao = st.text_input(
+        "Descrição"
+    )
+
+    if st.button(
+        "Salvar Produto"
+    ):
+
+        salvou = salvar_produto(
+            codigo,
+            descricao
+        )
+
+        if salvou:
+
+            st.success(
+                "✅ Produto cadastrado!"
+            )
+
+        else:
+
+            st.warning(
+                "⚠️ Código já existe!"
+            )
+
+    st.markdown("---")
+
+    df = carregar_produtos()
+
+    st.dataframe(
+        df,
+        use_container_width=True
+    )
+
+    st.markdown("---")
+
+    st.subheader(
+        "🗑️ Excluir Produto"
+    )
 
     if not df.empty:
 
-        total_registros = len(df)
-        peso_total = df["peso"].sum()
+        produto = st.selectbox(
+            "Selecione o código",
+            df["codigo"].astype(str)
+        )
 
-        col1, col2 = st.columns(2)
+        if st.button(
+            "Excluir Produto"
+        ):
 
-        with col1:
-            st.markdown(f"""
-            <div class='card'>
-                <h3>{total_registros}</h3>
-                <p>Total de Registros</p>
-            </div>
-            """, unsafe_allow_html=True)
+            df = df[
+                df["codigo"].astype(str)
+                != produto
+            ]
 
-        with col2:
-            st.markdown(f"""
-            <div class='card'>
-                <h3>{peso_total:.2f} kg</h3>
-                <p>Peso Total</p>
-            </div>
-            """, unsafe_allow_html=True)
+            df.to_csv(
+                "produtos.csv",
+                sep=";",
+                index=False
+            )
 
-        st.markdown("### 📊 Produção por Material")
+            st.success(
+                "✅ Produto excluído!"
+            )
 
-        st.bar_chart(df.groupby("material")["peso"].sum())
+            st.rerun()     
+            
+ # =========================
+ # 📊 DASHBOARD
+ # =========================   
 
-    else:
-        st.warning("Nenhum dado disponível")
+def tela_dashboard():
+
+    st.markdown(
+        "### 📊 Painel de Controle"
+    )
+
+    df = carregar_dados()
+
+    if df.empty:
+
+        st.warning(
+            "Nenhum dado disponível"
+        )
+
+        return
+
+    total_registros = len(df)
+
+    peso_total_kg = df["peso"].sum()
+
+    peso_total_t = (
+        peso_total_kg / 1000
+    )
+
+    total_produtos = (
+        df["material"].nunique()
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.metric(
+        "Registros",
+        total_registros
+    )
+
+    c2.metric(
+        "Peso Total (Kg)",
+        f"{peso_total_kg:.2f}"
+    )
+
+    c3.metric(
+        "Peso Total (Ton)",
+        f"{peso_total_t:.2f}"
+    )
+
+    c4.metric(
+        "Produtos",
+        total_produtos
+    )
+
+    st.markdown("---")
+
+    producao_kg = (
+        df.groupby(
+            "material"
+        )["peso"]
+        .sum()
+        .sort_values(
+            ascending=False
+        )
+    )
+
+    st.subheader(
+        "Produção por Produto (Kg)"
+    )
+
+    st.bar_chart(
+        producao_kg
+    )
+
+    producao_t = (
+        producao_kg / 1000
+    )
+
+    st.subheader(
+        "Produção por Produto (Ton)"
+    )
+
+    st.bar_chart(
+        producao_t
+    )
+
+    st.subheader(
+        "🏆 Ranking de Produção"
+    )
+
+    ranking = (
+        producao_kg
+        .reset_index()
+    )
+
+    st.dataframe(
+        ranking.rename(
+            columns={
+                "material": "Produto",
+                "peso": "Peso (Kg)"
+            }
+        )
+    )
 
 
 # =========================
@@ -541,18 +605,48 @@ def tela_inventario():
 
     if not df.empty:
 
-        st.dataframe(df)
+        filtro = st.text_input(
+            "🔍 Pesquisar Produto"
+        )
 
-        # apagar tudo
+        if filtro:
+
+            df = df[
+                df["material"].astype(str)
+                .str.contains(
+                    filtro,
+                    case=False,
+                    na=False
+                )
+            ]
+
+        st.markdown("### Inventário")
+
+        df_editado = st.data_editor(
+            df,
+            use_container_width=True,
+            num_rows="dynamic"
+        )
+
         st.markdown("---")
 
-        if st.button("🗑️ Apagar TODOS os registros"):
+        if st.button(
+            "🗑️ Apagar TODOS os registros"
+        ):
+
             limpar_banco()
-            st.warning("Todos os registros apagados")
+
+            st.warning(
+                "Todos os registros apagados"
+            )
+
             st.rerun()
 
-        # excluir individual
-        st.markdown("### 🗑️ Remover registro")
+        st.markdown("---")
+
+        st.subheader(
+            "🗑️ Remover Registro"
+        )
 
         indice = st.number_input(
             "Número da linha",
@@ -561,25 +655,49 @@ def tela_inventario():
             step=1
         )
 
-        if st.button("Excluir registro"):
-            df = df.drop(indice)
-            df.reset_index(drop=True, inplace=True)
-            df.to_csv(ARQUIVO, index=False, sep=";")
-            st.success("Registro removido")
-            st.rerun()
+        if st.button(
+            "Excluir Registro"
+        ):
 
-        # download
+            df = df.drop(indice)
+
+            df.reset_index(
+                drop=True,
+                inplace=True
+            )
+
+            df.to_csv(
+                ARQUIVO,
+                index=False,
+                sep=";"
+            )
+
+            st.success(
+                "Registro removido"
+            )
+
+            st.rerun()
+        st.markdown("---")
+
         output = io.BytesIO()
-        df.to_excel(output, index=False)
+
+        df_editado.to_excel(
+            output,
+            index=False,
+            engine="openpyxl"
+        )
 
         st.download_button(
             "📥 Baixar Excel",
             data=output.getvalue(),
-            file_name="relatorio.xlsx"
+            file_name="inventario.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
     else:
-        st.info("Sem registros")
+
+        st.info(
+            "Sem registros"
+        )
 
 # =========================
 # 🚀 CONTROLE PRINCIPAL
@@ -606,3 +724,8 @@ else:
 
     elif opcao == "📋 Inventário":
         tela_inventario()
+        
+    elif opcao == "📦 Cadastro de Produtos":
+        tela_produtos() 
+        
+    
