@@ -8,7 +8,7 @@ def ler_imagem(caminho):
     # carregar imagem
     imagem = cv2.imread(caminho)
 
-    # 🔥 transformar em escala de cinza
+    # 🔥 transformar em escala de cinzaa
     cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
 
     # 🔥 aumentar contraste (muito importante)

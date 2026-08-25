@@ -6,14 +6,8 @@ import re
 
 MATERIAIS = {
 
-    # ==================================
-    # COMPOSTOS PVC
-    # ==================================
-
     "4000000416": {
         "descricao": "COMPOSTO PÓ PVC BRANCO TUBO ESGOTO",
-        "tipo": "COMPOSTO",
-        "familia": "PVC",
         "formulacoes": [
             "E04B104",
             "E04B111",
@@ -23,26 +17,14 @@ MATERIAIS = {
 
     "4000000417": {
         "descricao": "COMPOSTO PÓ PVC MARROM TUBO SOLDÁVEL",
-        "tipo": "COMPOSTO",
-        "familia": "PVC",
         "formulacoes": [
             "E02M051",
             "E02M029"
         ]
-    },
-
-    # ==================================
-    # REFUGOS
-    # ==================================
-
-    "4000000507": {
-        "descricao": "REFUGO DE POLIETILENO",
-        "tipo": "REFUGO",
-        "familia": "POLIETILENO",
-        "formulacoes": []
     }
 
 }
+
 
 # =========================
 # ✅ BUSCAR MATERIAL PELO CÓDIGO
@@ -55,20 +37,7 @@ def buscar_material(codigo):
 
     return "MATERIAL NÃO CADASTRADO"
 
-def buscar_tipo(codigo):
 
-    if codigo in MATERIAIS:
-        return MATERIAIS[codigo]["tipo"]
-
-    return ""
-
-
-def buscar_familia(codigo):
-
-    if codigo in MATERIAIS:
-        return MATERIAIS[codigo]["familia"]
-
-    return 
 # =========================
 # ✅ VALIDAR FORMULAÇÃO
 # =========================
@@ -185,11 +154,9 @@ def extrair_dados(texto):
     # =========================
 
     return {
-    "codigo": codigo,
-    "material": material,
-    "tipo": buscar_tipo(codigo),
-    "familia": buscar_familia(codigo),
-    "formulacao": formulacao,
-    "formulacao_valida": formulacao_valida,
-    "peso": peso
-}
+        "codigo": codigo,
+        "material": material,
+        "formulacao": formulacao,
+        "formulacao_valida": formulacao_valida,
+        "peso": peso
+    }
