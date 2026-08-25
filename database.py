@@ -7,67 +7,102 @@ ARQUIVO = "dados.csv"
 def salvar_dado(dado):
 
     if os.path.exists(ARQUIVO):
-        df = pd.read_csv(ARQUIVO, sep=";")
+
+        df = pd.read_csv(
+            ARQUIVO,
+            sep=";"
+        )
+
     else:
-        df = pd.DataFrame(columns=[
-            "codigo",
-            "material",
-            "formulacao",
-            "peso",
-            "operador",
-            "turno",
-            "data",
-            "hora",
-            "usuario"
-        ])
 
-    # =========================
-    # PADRONIZAÇÃO DOS DADOS
-    # =========================
+        df = pd.DataFrame(
+            columns=[
+                "codigo",
+                "material",
+                "formulacao",
+                "peso",
+                "usuario"
+            ]
+        )
 
-    codigo = str(dado["codigo"]).strip()
-    material = str(dado["material"]).strip().upper()
-    formulacao = str(dado["formulacao"]).strip().upper()
-    peso = round(float(dado["peso"]), 2)
+    codigo = str(
+        dado["codigo"]
+    ).strip()
 
-    # =========================
-    # VERIFICAR DUPLICADO
-    # =========================
+    material = str(
+        dado["material"]
+    ).strip().upper()
+
+    formulacao = str(
+        dado["formulacao"]
+    ).strip().upper()
+
+    peso = round(
+        float(dado["peso"]),
+        2
+    )
 
     if not df.empty:
 
-        df["codigo"] = df["codigo"].astype(str)
-        df["material"] = df["material"].astype(str).str.upper()
-        df["formulacao"] = df["formulacao"].astype(str).str.upper()
-        df["peso"] = df["peso"].astype(float).round(2)
+        df["codigo"] = (
+            df["codigo"]
+            .astype(str)
+        )
+
+        df["material"] = (
+            df["material"]
+            .astype(str)
+            .str.upper()
+        )
+
+        df["formulacao"] = (
+            df["formulacao"]
+            .astype(str)
+            .str.upper()
+        )
+
+        df["peso"] = (
+            df["peso"]
+            .astype(float)
+            .round(2)
+        )
 
         existe = (
+
             (df["codigo"] == codigo)
-            & (df["material"] == material)
-            & (df["formulacao"] == formulacao)
-            & (df["peso"] == peso)
+
+            &
+
+            (df["material"] == material)
+
+            &
+
+            (df["formulacao"] == formulacao)
+
+            &
+
+            (df["peso"] == peso)
+
         )
 
         if existe.any():
+
             return False
 
-    # =========================
-    # SALVAR
-    # =========================
-
     novo = pd.DataFrame([{
+
         "codigo": codigo,
         "material": material,
         "formulacao": formulacao,
         "peso": peso,
-        "operador": dado["operador"],
-        "turno": dado["turno"],
-        "data": dado["data"],
-        "hora": dado["hora"],
         "usuario": dado["usuario"]
+
     }])
 
-    df = pd.concat([df, novo], ignore_index=True)
+    df = pd.concat(
+        [df, novo],
+        ignore_index=True
+    )
 
     df.to_csv(
         ARQUIVO,
@@ -81,34 +116,34 @@ def salvar_dado(dado):
 def carregar_dados():
 
     if os.path.exists(ARQUIVO):
-        return pd.read_csv(ARQUIVO, sep=";")
 
-    return pd.DataFrame(columns=[
-        "codigo",
-        "material",
-        "formulacao",
-        "peso",
-        "operador",
-        "turno",
-        "data",
-        "hora",
-        "usuario"
-    ])
+        return pd.read_csv(
+            ARQUIVO,
+            sep=";"
+        )
+
+    return pd.DataFrame(
+        columns=[
+            "codigo",
+            "material",
+            "formulacao",
+            "peso",
+            "usuario"
+        ]
+    )
 
 
 def limpar_banco():
 
-    df = pd.DataFrame(columns=[
-        "codigo",
-        "material",
-        "formulacao",
-        "peso",
-        "operador",
-        "turno",
-        "data",
-        "hora",
-        "usuario"
-    ])
+    df = pd.DataFrame(
+        columns=[
+            "codigo",
+            "material",
+            "formulacao",
+            "peso",
+            "usuario"
+        ]
+    )
 
     df.to_csv(
         ARQUIVO,
