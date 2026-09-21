@@ -84,19 +84,38 @@ section[data-testid="stSidebar"] * {
 # =========================
 # 🔐 LOGIN
 # =========================
+USUARIOS = {
+    "admin": {
+        "senha": "123456",
+        "nome": "Administrador"
+    },
+
+    "kayque.tg": {
+        "senha": "8150",
+        "nome": "Kayque Tavares"
+    },
+
+    "cia.brunabcs": {
+        "senha": "123456",
+        "nome": "Bruna"
+    },
+
+    "visitante": {
+        "senha": "123456",
+        "nome": "Visitante"
+    }
+}
+
 
 def tela_login():
 
-    # ✅ CSS LIMPO E PROFISSIONAL
     st.markdown("""
     <style>
 
-    /* fundo */
     .stApp {
         background: linear-gradient(135deg, #011F5B, #102a43);
     }
 
-    /* card */
     .login-card {
         background: #ffffff;
         padding: 35px;
@@ -104,7 +123,6 @@ def tela_login():
         box-shadow: 0px 8px 30px rgba(0,0,0,0.4);
     }
 
-    /* título */
     .titulo {
         font-size: 28px;
         font-weight: bold;
@@ -112,14 +130,12 @@ def tela_login():
         margin-bottom: 10px;
     }
 
-    /* subtítulo */
     .subtitulo {
         font-size: 16px;
         color: #FEFEFA;
         margin-bottom: 15px;
     }
 
-    /* botão */
     .stButton button {
         background-color: #1F4E8C !important;
         color: white !important;
@@ -128,7 +144,6 @@ def tela_login():
         border-radius: 4px;
     }
 
-    /* input */
     div[data-testid="stTextInput"] input {
         background-color: #FEFEFA !important;
         color: black !important;
@@ -138,44 +153,38 @@ def tela_login():
     </style>
     """, unsafe_allow_html=True)
 
-    # ✅ CENTRALIZAÇÃO CORRETA
+
     col_esq, col_centro, col_dir = st.columns([1, 2, 1])
 
     with col_centro:
 
-       
-        st.markdown("<div class='titulo'>FORTLEV</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='titulo'>FORTLEV</div>",
+            unsafe_allow_html=True
+        )
 
         usuario = st.text_input("Usuário")
         senha = st.text_input("Senha", type="password")
 
-    if st.button("Entrar"):
-        if usuario == "admin" and senha == "123456":
-        st.session_state["logado"] = True
-        st.session_state["usuario"] = usuario
-        st.rerun()
+        # BOTÃO DE LOGIN
+        if st.button("Entrar", key="btn_login"):
 
-    elif usuario == "kayque.tg" and senha == "8150":
-        st.session_state["logado"] = True
-        st.session_state["usuario"] = usuario
-        st.rerun()
+            if usuario in USUARIOS and USUARIOS[usuario]["senha"] == senha:
 
-    elif usuario == "cia.brunabcs" and senha == "123456":
-        st.session_state["logado"] = True
-        st.session_state["usuario"] = usuario
-        st.rerun()
+                st.session_state["logado"] = True
+                st.session_state["usuario"] = usuario
+                st.session_state["nome_usuario"] = USUARIOS[usuario]["nome"]
 
-    elif usuario == "visitante" and senha == "123456":
-        st.session_state["logado"] = True
-        st.session_state["usuario"] = usuario
-        st.rerun()
+                st.rerun()
+
             else:
                 st.error("Credenciais inválidas")
 
+
         st.markdown("""
         <div style='font-size:12px; margin-top:10px; color:#666'>
-        Desenvolvido por Kayque Tavares Gomes<br>
-        2026
+            Desenvolvido por Kayque Tavares Gomes<br>
+            2026
         </div>
         """, unsafe_allow_html=True)
 
