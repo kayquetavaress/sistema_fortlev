@@ -509,110 +509,450 @@ def tela_produtos():
 
             st.rerun()     
             
- # =========================
- # 📊 DASHBOARD
- # =========================   
+# =========================
+# 📊 DASHBOARD
+# =========================
 
 def tela_dashboard():
 
-    st.markdown(
-        "### 📊 Painel de Controle"
-    )
+    st.markdown("## 📊 Painel de Controle")
+    st.caption("Visão geral dos registros e da produção")
 
     df = carregar_dados()
 
+    # ==========================================
+    # VERIFICAÇÃO
+    # ==========================================
+
     if df.empty:
-
-        st.warning(
-            "Nenhum dado disponível"
-        )
-
+        st.warning("⚠️ Nenhum dado disponível para exibir no painel.")
         return
 
-    total_registros = len(df)
+    # ==========================================
+    # PADRONIZAÇÃO DOS DADOS
+    # ==========================================
 
-    peso_total_kg = df["peso"].sum()
+    df["peso"] = pd.to_numeric(
+        df["peso"],
+        errors="coerce"
+    ).fillna(0)
 
-    peso_total_t = (
-        peso_total_kg / 1000
+    df["material"] = (
+        df["material"]
+        .astype(str)
+        .str.upper()
+        .str.strip()
     )
+
+    df["codigo"] = (
+        df["codigo"]
+        .astype(str)
+        .str.strip()
+    )
+
+    if "formulacao" in df.columns:
+        df["formulacao"] = (
+            df["formulacao"]
+            .astype(str)
+            .str.upper()
+            .str.strip()
+        )
+
+    # ==========================================
+    # FILTROS
+    # ==========================================
+
+    st.markdown("### 🔎 Filtros")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        produtos = ["Todos"] + sorted(
+            df["material"]
+            .dropna()
+            .unique()
+            .tolist()
+        )
+
+        produto_selecionado = st.selectbox(
+            "📦 Produto",
+            produtos
+        )
+
+    with col2:
+
+        codigos = ["Todos"] + sorted(
+            df["codigo"]
+            .dropna()
+            .unique()
+            .tolist()
+        )
+
+        codigo_selecionado = st.selectbox(
+            "🔢 Código",
+            codigos
+        )
+
+    with col3:
+
+        if "formulacao" in df.columns:
+
+            formulacoes = ["Todos"] + sorted(
+                df["formulacao"]
+                .dropna()
+                .unique()
+                .tolist()
+            )
+
+            formulacao_selecionada = st.selectbox(
+                "🧪 Formulação",
+                formulacoes
+            )
+
+        else:
+
+            formulacao_selecionada = "Todos"
+
+    # ==========================================
+    # APLICAÇÃO DOS FILTROS
+    # ==========================================
+
+    df_filtrado = df.copy()
+
+    if produto_selecionado != "Todos":
+
+        df_filtrado = df_filtrado[
+            df_filtrado["material"]
+            == produto_selecionado
+        ]
+
+    if codigo_selecionado != "Todos":
+
+        df_filtrado = df_filtrado[
+            df_filtrado["codigo"]
+            == codigo_selecionado
+        ]
+
+    if (
+        formulacao_selecionada != "Todos"
+        and "formulacao" in df_filtrado.columns
+    ):
+
+        df_filtrado = df_filtrado[
+            df_filtrado["formulacao"]
+            == formulacao_selecionada
+        ]
+
+    # ==========================================
+    # INDICADORES PRINCIPAIS
+    # ==========================================
+
+    total_registros = len(df_filtrado)
+
+    peso_total = df_filtrado["peso"].sum()
+
+    peso_total_ton = peso_total / 1000
 
     total_produtos = (
-        df["material"].nunique()
+        df_filtrado["material"]
+        .nunique()
     )
 
-    c1, c2, c3, c4 = st.columns(4)
-
-    c1.metric(
-        "Registros",
-        total_registros
-    )
-
-    c2.metric(
-        "Peso Total (Kg)",
-        f"{peso_total_kg:.2f}"
-    )
-
-    c3.metric(
-        "Peso Total (Ton)",
-        f"{peso_total_t:.2f}"
-    )
-
-    c4.metric(
-        "Produtos",
-        total_produtos
+    peso_medio = (
+        df_filtrado["peso"].mean()
+        if not df_filtrado.empty
+        else 0
     )
 
     st.markdown("---")
 
-    producao_kg = (
-        df.groupby(
-            "material"
-        )["peso"]
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+
+        st.metric(
+            "📦 Registros",
+            f"{total_registros:,}".replace(",", ".")
+        )
+
+    with c2:
+
+        st.metric(
+            "⚖️ Peso Total",
+            f"{peso_total:,.2f} kg".replace(",", "X")
+            .replace(".", ",")
+            .replace("X", ".")
+        )
+
+    with c3:
+
+        st.metric(
+            "🏭 Produção",
+            f"{peso_total_ton:,.2f} Ton".replace(",", "X")
+            .replace(".", ",")
+            .replace("X", ".")
+        )
+
+    with c4:
+
+        st.metric(
+            "📊 Média por Registro",
+            f"{peso_medio:,.2f} kg".replace(",", "X")
+            .replace(".", ",")
+            .replace("X", ".")
+        )
+
+    # ==========================================
+    # ALERTA QUANDO NÃO HÁ RESULTADOS
+    # ==========================================
+
+    if df_filtrado.empty:
+
+        st.warning(
+            "⚠️ Nenhum registro encontrado com os filtros selecionados."
+        )
+
+        return
+
+    # ==========================================
+    # PRODUÇÃO POR PRODUTO
+    # ==========================================
+
+    st.markdown("---")
+
+    st.markdown("### 📦 Produção por Produto")
+
+    producao_produto = (
+        df_filtrado
+        .groupby("material")["peso"]
         .sum()
         .sort_values(
             ascending=False
         )
     )
 
-    st.subheader(
-        "Produção por Produto (Kg)"
-    )
-
     st.bar_chart(
-        producao_kg
+        producao_produto,
+        height=350
     )
 
-    producao_t = (
-        producao_kg / 1000
-    )
+    # ==========================================
+    # DUAS COLUNAS DE ANÁLISE
+    # ==========================================
 
-    st.subheader(
-        "Produção por Produto (Ton)"
-    )
+    col_esq, col_dir = st.columns(2)
 
-    st.bar_chart(
-        producao_t
-    )
+    # ==========================================
+    # RANKING
+    # ==========================================
 
-    st.subheader(
-        "🏆 Ranking de Produção"
-    )
+    with col_esq:
 
-    ranking = (
-        producao_kg
-        .reset_index()
-    )
+        st.markdown("### 🏆 Ranking de Produção")
 
-    st.dataframe(
-        ranking.rename(
+        ranking = (
+            df_filtrado
+            .groupby(
+                ["codigo", "material"]
+            )["peso"]
+            .sum()
+            .reset_index()
+            .sort_values(
+                "peso",
+                ascending=False
+            )
+        )
+
+        ranking["peso_ton"] = (
+            ranking["peso"] / 1000
+        )
+
+        ranking["participacao"] = (
+            ranking["peso"]
+            / ranking["peso"].sum()
+            * 100
+        )
+
+        ranking = ranking.rename(
             columns={
+                "codigo": "Código",
                 "material": "Produto",
-                "peso": "Peso (Kg)"
+                "peso": "Peso (kg)",
+                "peso_ton": "Peso (Ton)",
+                "participacao": "% Total"
             }
         )
-    )
 
+        ranking["Peso (kg)"] = ranking[
+            "Peso (kg)"
+        ].round(2)
+
+        ranking["Peso (Ton)"] = ranking[
+            "Peso (Ton)"
+        ].round(2)
+
+        ranking["% Total"] = ranking[
+            "% Total"
+        ].round(2)
+
+        st.dataframe(
+            ranking,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    # ==========================================
+    # DISTRIBUIÇÃO DOS REGISTROS
+    # ==========================================
+
+    with col_dir:
+
+        st.markdown("### 📋 Registros por Produto")
+
+        quantidade_produto = (
+            df_filtrado
+            .groupby("material")
+            .size()
+            .sort_values(
+                ascending=False
+            )
+        )
+
+        st.bar_chart(
+            quantidade_produto,
+            height=350
+        )
+
+    # ==========================================
+    # ANÁLISE POR USUÁRIO
+    # ==========================================
+
+    if "usuario" in df_filtrado.columns:
+
+        st.markdown("---")
+
+        st.markdown("### 👤 Registros por Usuário")
+
+        usuario_df = (
+            df_filtrado
+            .groupby("usuario")
+            .agg(
+                Registros=("peso", "count"),
+                Peso_Total_kg=("peso", "sum")
+            )
+            .reset_index()
+            .sort_values(
+                "Peso_Total_kg",
+                ascending=False
+            )
+        )
+
+        usuario_df["Peso_Total_ton"] = (
+            usuario_df["Peso_Total_kg"] / 1000
+        )
+
+        usuario_df = usuario_df.rename(
+            columns={
+                "usuario": "Usuário",
+                "Peso_Total_kg": "Peso Total (kg)",
+                "Peso_Total_ton": "Peso Total (Ton)"
+            }
+        )
+
+        usuario_df["Peso Total (kg)"] = (
+            usuario_df["Peso Total (kg)"]
+            .round(2)
+        )
+
+        usuario_df["Peso Total (Ton)"] = (
+            usuario_df["Peso Total (Ton)"]
+            .round(2)
+        )
+
+        st.dataframe(
+            usuario_df,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    # ==========================================
+    # FORMULAÇÕES
+    # ==========================================
+
+    if "formulacao" in df_filtrado.columns:
+
+        st.markdown("---")
+
+        st.markdown("### 🧪 Produção por Formulação")
+
+        formulacao_df = (
+            df_filtrado
+            .groupby("formulacao")["peso"]
+            .sum()
+            .sort_values(
+                ascending=False
+            )
+        )
+
+        st.bar_chart(
+            formulacao_df,
+            height=300
+        )
+
+    # ==========================================
+    # RESUMO DOS DADOS
+    # ==========================================
+
+    st.markdown("---")
+
+    st.markdown("### 📋 Resumo dos Registros")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        maior_registro = df_filtrado["peso"].max()
+
+        st.metric(
+            "⬆️ Maior Peso",
+            f"{maior_registro:.2f} kg"
+        )
+
+    with col2:
+
+        menor_registro = df_filtrado["peso"].min()
+
+        st.metric(
+            "⬇️ Menor Peso",
+            f"{menor_registro:.2f} kg"
+        )
+
+    with col3:
+
+        produtos_ativos = (
+            df_filtrado["material"]
+            .nunique()
+        )
+
+        st.metric(
+            "📦 Produtos Produzidos",
+            produtos_ativos
+        )
+
+    # ==========================================
+    # TABELA DETALHADA
+    # ==========================================
+
+    st.markdown("---")
+
+    with st.expander("🔎 Visualizar registros detalhados"):
+
+        st.dataframe(
+            df_filtrado,
+            use_container_width=True,
+            hide_index=True
+        )
 
 # =========================
 # 📋 INVENTÁRIO
