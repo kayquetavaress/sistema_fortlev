@@ -149,15 +149,26 @@ def tela_login():
         usuario = st.text_input("Usuário")
         senha = st.text_input("Senha", type="password")
 
-        if st.button("Entrar"):
-            if usuario == "admin" and senha == "1234":   
-                st.session_state["logado"] = True
-                st.session_state["usuario"] = usuario
-                st.rerun()
-            elif usuario == "kayque" and senha == "8150":
-                st.session_state["logado"] = True
-                st.session_state["usuario"] = usuario
-                st.rerun()
+    if st.button("Entrar"):
+        if usuario == "admin" and senha == "123456":
+        st.session_state["logado"] = True
+        st.session_state["usuario"] = usuario
+        st.rerun()
+
+    elif usuario == "kayque.tg" and senha == "8150":
+        st.session_state["logado"] = True
+        st.session_state["usuario"] = usuario
+        st.rerun()
+
+    elif usuario == "cia.brunabcs" and senha == "123456":
+        st.session_state["logado"] = True
+        st.session_state["usuario"] = usuario
+        st.rerun()
+
+    elif usuario == "visitante" and senha == "123456":
+        st.session_state["logado"] = True
+        st.session_state["usuario"] = usuario
+        st.rerun()
             else:
                 st.error("Credenciais inválidas")
 
