@@ -14,7 +14,7 @@ MATERIAIS = {
             "E04B113"
         ]
     },
-
+ 
     "4000000417": {
         "descricao": "COMPOSTO PÓ PVC MARROM TUBO SOLDÁVEL",
         "formulacoes": [

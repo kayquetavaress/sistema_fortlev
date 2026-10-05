@@ -15,7 +15,7 @@ from produtos import (
 st.set_page_config(page_title="Sistema Fortlev", layout="wide")
 
 # =========================
-# 🎨 ESTILO COMPLETO
+#  ESTILO COMPLETO
 # =========================
 st.markdown("""
 <style>
@@ -82,7 +82,7 @@ section[data-testid="stSidebar"] * {
 """, unsafe_allow_html=True)
 
 # =========================
-# 🔐 LOGIN
+#  LOGIN
 # =========================
 USUARIOS = {
     "admin": {
@@ -192,11 +192,11 @@ def tela_login():
 
 
 # =========================
-# 📂 MENU
+#  MENU
 # =========================
 def menu():
 
-    st.sidebar.markdown("## 💼 Sistema Fortlev")
+    st.sidebar.markdown("##  Sistema Fortlev")
 
     st.sidebar.markdown("""
 📦 Controle de Inventário  
@@ -207,18 +207,18 @@ def menu():
     opcao = st.sidebar.radio(
     "Selecione uma opção",
     [
-        "📸 Leitura de Etiqueta",
-        "📊 Painel",
-        "📋 Inventário",
-        "📦 Cadastro de Produtos"
+        " Leitura de Etiqueta",
+        " Painel",
+        " Inventário",
+        " Cadastro de Produtos"
     ]
 )
 
     st.sidebar.markdown("---")
 
-    st.sidebar.write(f"👤 Usuário atual: {st.session_state.get('usuario')}")
+    st.sidebar.write(f" Usuário atual: {st.session_state.get('usuario')}")
 
-    if st.sidebar.button("🔄 Trocar usuário"):
+    if st.sidebar.button(" Trocar usuário"):
         st.session_state["logado"] = False
         st.session_state["usuario"] = ""
         st.rerun()
@@ -228,17 +228,17 @@ def menu():
     return opcao
 
 # =========================
-# 📸 UPLOAD
+#  UPLOAD
 # =========================
 def tela_upload():
 
-    st.markdown("### 📸 Leitura de Etiqueta")
+    st.markdown("###  Leitura de Etiqueta")
 
     modo = st.radio(
         "Modo de Entrada",
         [
-            "📸 Anexar Imagem",
-            "⌨️ Digitação Manual"
+            " Anexar Imagem",
+            " Digitação Manual"
         ]
     )
 
@@ -246,7 +246,7 @@ def tela_upload():
     # OCR
     # =========================
 
-    if modo == "📸 Anexar Imagem":
+    if modo == " Anexar Imagem":
 
         arquivo = st.file_uploader(
             "Selecione ou tire uma foto",
@@ -282,7 +282,7 @@ def tela_upload():
             )
 
             st.subheader(
-                "📊 Dados Extraídos"
+                " Dados Extraídos"
             )
 
             st.write(dados)
@@ -326,7 +326,7 @@ def tela_upload():
     else:
 
         st.subheader(
-            "⌨️ Digitação Manual"
+            " Digitação Manual"
         )
 
         codigo = st.text_input(
@@ -393,7 +393,7 @@ def tela_upload():
             )
 
         if st.button(
-            "💾 Salvar Registro Manual"
+            " Salvar Registro Manual"
         ):
 
             dados = {
@@ -428,13 +428,13 @@ def tela_upload():
                     "⚠️ Registro duplicado!"
                 )
    # =========================
-# 📦 PRODUTOS
+#  PRODUTOS
 # =========================
 
 def tela_produtos():
 
     st.markdown(
-        "### 📦 Cadastro de Produtos"
+        "###  Cadastro de Produtos"
     )
 
     codigo = st.text_input(
@@ -478,7 +478,7 @@ def tela_produtos():
     st.markdown("---")
 
     st.subheader(
-        "🗑️ Excluir Produto"
+        " Excluir Produto"
     )
 
     if not df.empty:
@@ -504,18 +504,18 @@ def tela_produtos():
             )
 
             st.success(
-                "✅ Produto excluído!"
+                " Produto excluído!"
             )
 
             st.rerun()     
             
 # =========================
-# 📊 DASHBOARD
+#  DASHBOARD
 # =========================
 
 def tela_dashboard():
 
-    st.markdown("## 📊 Painel de Controle")
+    st.markdown("##  Painel de Controle")
     st.caption("Visão geral dos registros e da produção")
 
     df = carregar_dados()
@@ -562,7 +562,7 @@ def tela_dashboard():
     # FILTROS
     # ==========================================
 
-    st.markdown("### 🔎 Filtros")
+    st.markdown("###  Filtros")
 
     col1, col2, col3 = st.columns(3)
 
@@ -576,7 +576,7 @@ def tela_dashboard():
         )
 
         produto_selecionado = st.selectbox(
-            "📦 Produto",
+            " Produto",
             produtos
         )
 
@@ -590,7 +590,7 @@ def tela_dashboard():
         )
 
         codigo_selecionado = st.selectbox(
-            "🔢 Código",
+            " Código",
             codigos
         )
 
@@ -606,7 +606,7 @@ def tela_dashboard():
             )
 
             formulacao_selecionada = st.selectbox(
-                "🧪 Formulação",
+                " Formulação",
                 formulacoes
             )
 
@@ -672,14 +672,14 @@ def tela_dashboard():
     with c1:
 
         st.metric(
-            "📦 Registros",
+            " Registros",
             f"{total_registros:,}".replace(",", ".")
         )
 
     with c2:
 
         st.metric(
-            "⚖️ Peso Total",
+            " Peso Total",
             f"{peso_total:,.2f} kg".replace(",", "X")
             .replace(".", ",")
             .replace("X", ".")
@@ -688,7 +688,7 @@ def tela_dashboard():
     with c3:
 
         st.metric(
-            "🏭 Produção",
+            " Produção",
             f"{peso_total_ton:,.2f} Ton".replace(",", "X")
             .replace(".", ",")
             .replace("X", ".")
@@ -697,7 +697,7 @@ def tela_dashboard():
     with c4:
 
         st.metric(
-            "📊 Média por Registro",
+            " Média por Registro",
             f"{peso_medio:,.2f} kg".replace(",", "X")
             .replace(".", ",")
             .replace("X", ".")
@@ -710,7 +710,7 @@ def tela_dashboard():
     if df_filtrado.empty:
 
         st.warning(
-            "⚠️ Nenhum registro encontrado com os filtros selecionados."
+            " Nenhum registro encontrado com os filtros selecionados."
         )
 
         return
@@ -721,7 +721,7 @@ def tela_dashboard():
 
     st.markdown("---")
 
-    st.markdown("### 📦 Produção por Produto")
+    st.markdown("###  Produção por Produto")
 
     producao_produto = (
         df_filtrado
@@ -749,7 +749,7 @@ def tela_dashboard():
 
     with col_esq:
 
-        st.markdown("### 🏆 Ranking de Produção")
+        st.markdown("###  Ranking de Produção")
 
         ranking = (
             df_filtrado
@@ -808,7 +808,7 @@ def tela_dashboard():
 
     with col_dir:
 
-        st.markdown("### 📋 Registros por Produto")
+        st.markdown("###  Registros por Produto")
 
         quantidade_produto = (
             df_filtrado
@@ -832,7 +832,7 @@ def tela_dashboard():
 
         st.markdown("---")
 
-        st.markdown("### 👤 Registros por Usuário")
+        st.markdown("###  Registros por Usuário")
 
         usuario_df = (
             df_filtrado
@@ -884,7 +884,7 @@ def tela_dashboard():
 
         st.markdown("---")
 
-        st.markdown("### 🧪 Produção por Formulação")
+        st.markdown("###  Produção por Formulação")
 
         formulacao_df = (
             df_filtrado
@@ -906,7 +906,7 @@ def tela_dashboard():
 
     st.markdown("---")
 
-    st.markdown("### 📋 Resumo dos Registros")
+    st.markdown("###  Resumo dos Registros")
 
     col1, col2, col3 = st.columns(3)
 
@@ -915,7 +915,7 @@ def tela_dashboard():
         maior_registro = df_filtrado["peso"].max()
 
         st.metric(
-            "⬆️ Maior Peso",
+            " Maior Peso",
             f"{maior_registro:.2f} kg"
         )
 
@@ -924,7 +924,7 @@ def tela_dashboard():
         menor_registro = df_filtrado["peso"].min()
 
         st.metric(
-            "⬇️ Menor Peso",
+            " Menor Peso",
             f"{menor_registro:.2f} kg"
         )
 
@@ -936,7 +936,7 @@ def tela_dashboard():
         )
 
         st.metric(
-            "📦 Produtos Produzidos",
+            " Produtos Produzidos",
             produtos_ativos
         )
 
@@ -946,7 +946,7 @@ def tela_dashboard():
 
     st.markdown("---")
 
-    with st.expander("🔎 Visualizar registros detalhados"):
+    with st.expander(" Visualizar registros detalhados"):
 
         st.dataframe(
             df_filtrado,
@@ -955,18 +955,18 @@ def tela_dashboard():
         )
 
 # =========================
-# 📋 INVENTÁRIO
+#  INVENTÁRIO
 # =========================
 def tela_inventario():
 
-    st.markdown("### 📋 Inventário")
+    st.markdown("###  Inventário")
 
     df = carregar_dados()
 
     if not df.empty:
 
         filtro = st.text_input(
-            "🔍 Pesquisar Produto"
+            " Pesquisar Produto"
         )
 
         if filtro:
@@ -980,7 +980,7 @@ def tela_inventario():
                 )
             ]
 
-        st.markdown("### Inventário")
+        st.markdown("###  Inventário")
 
         df_editado = st.data_editor(
             df,
@@ -991,7 +991,7 @@ def tela_inventario():
         st.markdown("---")
 
         if st.button(
-            "🗑️ Apagar TODOS os registros"
+            " Apagar TODOS os registros"
         ):
 
             limpar_banco()
@@ -1005,7 +1005,7 @@ def tela_inventario():
         st.markdown("---")
 
         st.subheader(
-            "🗑️ Remover Registro"
+            " Remover Registro"
         )
 
         indice = st.number_input(
@@ -1048,7 +1048,7 @@ def tela_inventario():
         )
 
         st.download_button(
-            "📥 Baixar Excel",
+            " Baixar Excel",
             data=output.getvalue(),
             file_name="inventario.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -1060,7 +1060,7 @@ def tela_inventario():
         )
 
 # =========================
-# 🚀 CONTROLE PRINCIPAL
+#  CONTROLE PRINCIPAL
 # =========================
 
 if "logado" not in st.session_state:
@@ -1076,16 +1076,16 @@ if not st.session_state["logado"]:
 else:
     opcao = menu()
 
-    if opcao == "📸 Leitura de Etiqueta":
+    if opcao == " Leitura de Etiqueta":
         tela_upload()
 
-    elif opcao == "📊 Painel":
+    elif opcao == " Painel":
         tela_dashboard()
 
-    elif opcao == "📋 Inventário":
+    elif opcao == " Inventário":
         tela_inventario()
         
-    elif opcao == "📦 Cadastro de Produtos":
+    elif opcao == " Cadastro de Produtos":
         tela_produtos() 
         
     
