@@ -1,152 +1,43 @@
 import pandas as pd
-import os
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
-ARQUIVO = "dados.csv"
+from db import engine, registros
+
+COLUNAS = ["id", "codigo", "material", "formulacao", "peso", "usuario"]
 
 
 def salvar_dado(dado):
-
-    if os.path.exists(ARQUIVO):
-
-        df = pd.read_csv(
-            ARQUIVO,
-            sep=";"
-        )
-
-    else:
-
-        df = pd.DataFrame(
-            columns=[
-                "codigo",
-                "material",
-                "formulacao",
-                "peso",
-                "usuario"
-            ]
-        )
-
-    codigo = str(
-        dado["codigo"]
-    ).strip()
-
-    material = str(
-        dado["material"]
-    ).strip().upper()
-
-    formulacao = str(
-        dado["formulacao"]
-    ).strip().upper()
-
-    peso = round(
-        float(dado["peso"]),
-        2
-    )
-
-    if not df.empty:
-
-        df["codigo"] = (
-            df["codigo"]
-            .astype(str)
-        )
-
-        df["material"] = (
-            df["material"]
-            .astype(str)
-            .str.upper()
-        )
-
-        df["formulacao"] = (
-            df["formulacao"]
-            .astype(str)
-            .str.upper()
-        )
-
-        df["peso"] = (
-            df["peso"]
-            .astype(float)
-            .round(2)
-        )
-
-        existe = (
-
-            (df["codigo"] == codigo)
-
-            &
-
-            (df["material"] == material)
-
-            &
-
-            (df["formulacao"] == formulacao)
-
-            &
-
-            (df["peso"] == peso)
-
-        )
-
-        if existe.any():
-
-            return False
-
-    novo = pd.DataFrame([{
-
-        "codigo": codigo,
-        "material": material,
-        "formulacao": formulacao,
-        "peso": peso,
-        "usuario": dado["usuario"]
-
-    }])
-
-    df = pd.concat(
-        [df, novo],
-        ignore_index=True
-    )
-
-    df.to_csv(
-        ARQUIVO,
-        index=False,
-        sep=";"
-    )
-
+    """Grava um registro. Retorna False se já existir um idêntico."""
+    novo = {
+        "codigo": str(dado["codigo"]).strip(),
+        "material": str(dado["material"]).strip().upper(),
+        "formulacao": str(dado["formulacao"]).strip().upper(),
+        "peso": round(float(dado["peso"]), 2),
+        "usuario": dado.get("usuario"),
+    }
+    try:
+        with engine.begin() as conn:
+            conn.execute(registros.insert().values(**novo))
+    except IntegrityError:
+        return False
     return True
 
 
 def carregar_dados():
+    query = select(*[registros.c[c] for c in COLUNAS]).order_by(registros.c.id)
+    with engine.connect() as conn:
+        df = pd.DataFrame(conn.execute(query).fetchall(), columns=COLUNAS)
+    if not df.empty:
+        df["peso"] = df["peso"].astype(float)
+    return df
 
-    if os.path.exists(ARQUIVO):
 
-        return pd.read_csv(
-            ARQUIVO,
-            sep=";"
-        )
-
-    return pd.DataFrame(
-        columns=[
-            "codigo",
-            "material",
-            "formulacao",
-            "peso",
-            "usuario"
-        ]
-    )
+def excluir_registro(registro_id):
+    with engine.begin() as conn:
+        conn.execute(registros.delete().where(registros.c.id == int(registro_id)))
 
 
 def limpar_banco():
-
-    df = pd.DataFrame(
-        columns=[
-            "codigo",
-            "material",
-            "formulacao",
-            "peso",
-            "usuario"
-        ]
-    )
-
-    df.to_csv(
-        ARQUIVO,
-        index=False,
-        sep=";"
-    )
+    with engine.begin() as conn:
+        conn.execute(registros.delete())
