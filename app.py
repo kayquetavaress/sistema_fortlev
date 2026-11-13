@@ -104,7 +104,28 @@ USUARIOS = {
     "visitante": {
         "senha": "123456",
         "nome": "Visitante"
-    }
+    },
+    
+    "felipe.ss": {
+            "senha": "1234",
+            "nome": "Felipe Silva"
+    },
+    
+    "carla.am": {
+                    "senha": "1234",
+                    "nome": "Ana carla"
+            },
+    
+    "roto 1": {
+                "senha": "1234",
+                "nome": "Rotomoldagem1"
+        },
+    
+    "roto 2": {
+                "senha": "1234",
+                "nome": "Rotomoldagem2"
+            },
+      
 }
 
 
