@@ -112,20 +112,19 @@ USUARIOS = {
     },
     
     "carla.am": {
-                    "senha": "1234",
-                    "nome": "Ana carla"
+        "senha": "1234",
+        "nome": "Ana carla"
             },
     
-    "roto 1": {
-                "senha": "1234",
+    "roto.1": {
+       "senha": "1234",
                 "nome": "Rotomoldagem1"
         },
     
-    "roto 2": {
-                "senha": "1234",
-                "nome": "Rotomoldagem2"
+    "roto.2": {
+        "senha": "1234",
+        "nome": "Rotomoldagem2"
             },
-      
 }
 
 
