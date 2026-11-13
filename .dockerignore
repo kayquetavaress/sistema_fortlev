@@ -1,0 +1,6 @@
+.git
+.devcontainer
+__pycache__
+*.pyc
+*.db
+imagens/
